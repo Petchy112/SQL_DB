@@ -9,30 +9,44 @@ const connection = mysql.createConnection({
     database: 'test'
   });
 
-router.get('/',(req,res)=>{ 
+router.get('/',(req,res) => { 
     connection.query('SELECT * FROM user',(err,result) => {
         if (err) return err;
         res.status(200).send(result)
     })
 })
 
-router.post('/',(req,res)=> {
-    var sql =  'INSERT INTO user (id,FirstName,LastName,Email) VALUES ("5","Lisa","BlackPink","Lisa@hotmail.com")'
-    connection.query(sql,function(err,result) {
-        if (err) return err;
-        res.status(200).send("เพิ่มข้อมูล")
-    })
-})
+router.post('/add',(req,res) => {
+    const FirstName = req.body.FirstName;
+    const LastName = req.body.LastName;
+    const Email = req.body.Email;
+    const data = {
+        FirstName:FirstName,
+        LastName:LastName,
+        Email:Email,
+    }
+    connection.query('INSERT INTO user SET ?',data,(err) => {
+        if (err) return err
+        res.status(200).send('เพิ่มข้อมูลเรียบร้อย');
+    });
+});
 
 router.get('/delete/:id',(req,res) => {
-    connection.query('DELETE FROM `user` WHERE id = ?',[req.body.id], (err, results) => {
-        return res.send('ลบข้อมูล');
+    connection.query('DELETE FROM `user` WHERE id = ?',[req.params.id], (err, result) => {
+        if (err) return err;
+        res.status(200).send('ลบข้อมูล');
     });    
 });
 
-// router.get('/edit/:id',(req,res) => {
-//     connection.query('UPDATE INTO `user` WHERE id = ?',[req.body.id], (err, result) => {
-//         return
-//     })
-// })
+router.post('/edit/:id',(req,res) => {
+    const FirstName = req.body.FirstName;
+    const LastName = req.body.LastName;
+    const Email = req.body.Email;
+    const id = req.params.id;
+
+    connection.query('UPDATE `user` SET FirstName = ?,LastName = ? , Email = ? WHERE id = ?',[FirstName,LastName,Email,id], (err,result) => {
+        if (err) return err;
+        res.status(200).send('แก้ไขแล้ว')
+    })
+})
 module.exports = router
